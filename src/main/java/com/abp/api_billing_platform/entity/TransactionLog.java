@@ -9,6 +9,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -21,8 +23,9 @@ public class TransactionLog {
   @Column(name = "transaction_id", nullable = false)
   private String transactionId;
 
-  @Column(name = "subscription_id", nullable = false)
-  private Long subscriptionId;
+  @ManyToOne
+  @JoinColumn(name = "subscription_id", nullable = false)
+  private ConsumerSubscription consumerSubscription;
 
   @Column(name = "request_time")
   private LocalDateTime requestTime = LocalDateTime.now();
@@ -54,12 +57,12 @@ public class TransactionLog {
     this.transactionId = transactionId;
   }
 
-  public Long getSubscriptionId() {
-    return subscriptionId;
+  public ConsumerSubscription getSubscription() {
+    return consumerSubscription;
   }
 
-  public void setSubscriptionId(Long subscriptionId) {
-    this.subscriptionId = subscriptionId;
+  public void setSubscription(ConsumerSubscription consumerSubscription) {
+    this.consumerSubscription = consumerSubscription;
   }
 
   public LocalDateTime getRequestTime() {

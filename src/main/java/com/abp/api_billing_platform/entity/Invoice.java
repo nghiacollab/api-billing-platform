@@ -8,6 +8,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -17,8 +19,9 @@ public class Invoice {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(name = "consumer_id")
-  private Long consumerId;
+  @ManyToOne
+  @JoinColumn(name = "consumer_id")
+  private Consumer consumer;
 
   @Column(name = "billing_cycle")
   private String billingCycle;
@@ -38,12 +41,12 @@ public class Invoice {
     return id;
   }
 
-  public Long getConsumerId() {
-    return consumerId;
+  public Consumer getConsumer() {
+    return consumer;
   }
 
-  public void setConsumerId(Long consumerId) {
-    this.consumerId = consumerId;
+  public void setConsumer(Consumer consumer) {
+    this.consumer = consumer;
   }
 
   public String getBillingCycle() {

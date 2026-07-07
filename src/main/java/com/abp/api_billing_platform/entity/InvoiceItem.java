@@ -8,6 +8,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -17,11 +19,13 @@ public class InvoiceItem {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(name = "invoice_id")
-  private Long invoiceId;
+  @ManyToOne
+  @JoinColumn(name = "invoice_id")
+  private Invoice invoice;
 
-  @Column(name = "merchant_api_id")
-  private Long merchantApiId;
+  @ManyToOne
+  @JoinColumn(name = "merchant_api_id")
+  private MerchantApi merchantApi;
 
   @Column(name = "total_quantity", precision = 15, scale = 4)
   private BigDecimal totalQuantity;
@@ -36,20 +40,20 @@ public class InvoiceItem {
     return id;
   }
 
-  public Long getInvoiceId() {
-    return invoiceId;
+  public Invoice getInvoice() {
+    return invoice;
   }
 
-  public void setInvoiceId(Long invoiceId) {
-    this.invoiceId = invoiceId;
+  public void setInvoice(Invoice invoice) {
+    this.invoice = invoice;
   }
 
-  public Long getMerchantApiId() {
-    return merchantApiId;
+  public MerchantApi getMerchantApiId() {
+    return merchantApi;
   }
 
-  public void setMerchantApiId(Long merchantApiId) {
-    this.merchantApiId = merchantApiId;
+  public void setMerchantApiId(MerchantApi merchantApi) {
+    this.merchantApi = merchantApi;
   }
 
   public BigDecimal getTotalQuantity() {
