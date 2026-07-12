@@ -40,6 +40,7 @@ public class ConsumerSubscription {
   @Column(name = "api_key", unique = true)
   private String apiKey;
 
+  @Enumerated(EnumType.STRING)
   @Column(name = "auth_type")
   private AuthType authType;
 
