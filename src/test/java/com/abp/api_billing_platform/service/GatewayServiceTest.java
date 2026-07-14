@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -41,9 +40,6 @@ class GatewayServiceTest {
   @Mock
   private PlatformTransactionManager transactionManager;
 
-  @InjectMocks
-  private GatewayService gatewayService;
-
   @Test
   void shouldPersistLogWhenMerchantCallFails() {
     ConsumerSubscription subscription = new ConsumerSubscription();
@@ -64,7 +60,7 @@ class GatewayServiceTest {
     GatewayService service = new GatewayService(subscriptionRepository, consumerRepository, transactionLogRepository,
         transactionManager, new RestTemplate());
 
-    assertThrows(RuntimeException.class, () -> service.executeRouting("bad-key", "/weather", null));
+    assertThrows(RuntimeException.class, () -> service.executeRouting("bad-key", null));
 
     verify(transactionLogRepository).save(any(TransactionLog.class));
     verify(consumerRepository, never()).save(any());

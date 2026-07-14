@@ -15,19 +15,51 @@ import com.abp.api_billing_platform.service.GatewayService;
 class GatewayControllerTest {
 
   @Test
-  void shouldRouteNestedPathAndQueryStringToGatewayService() {
+  void shouldRouteWithHeaderApiKeyAndQueryString() {
     GatewayService gatewayService = Mockito.mock(GatewayService.class);
     GatewayController controller = new GatewayController(gatewayService);
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/gateway/abc123/mock-merchant/weather");
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/v1/gateway/service/mock-merchant/weather");
     request.setQueryString("city=Hanoi");
+    request.addHeader("X-API-Key", "test-api-key-123");
 
-    when(gatewayService.executeRouting(eq("abc123"), eq("/mock-merchant/weather"), eq("city=Hanoi")))
-        .thenReturn("ok");
+    when(gatewayService.executeRouting(eq("test-api-key-123"), eq("city=Hanoi")))
+        .thenReturn("{\"city\":\"Hanoi\",\"temperature\":\"28°C\"}");
 
-    ResponseEntity<String> response = controller.handleRedirect("abc123", request);
+    ResponseEntity<String> response = controller.handleRedirect("test-api-key-123", request);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
-    assertEquals("ok", response.getBody());
-    verify(gatewayService).executeRouting("abc123", "/mock-merchant/weather", "city=Hanoi");
+    assertEquals("{\"city\":\"Hanoi\",\"temperature\":\"28°C\"}", response.getBody());
+    verify(gatewayService).executeRouting("test-api-key-123", "city=Hanoi");
+  }
+
+  @Test
+  void shouldReturn401WhenApiKeyIsInvalid() {
+    GatewayService gatewayService = Mockito.mock(GatewayService.class);
+    GatewayController controller = new GatewayController(gatewayService);
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/v1/gateway/service/mock-merchant/weather");
+    request.addHeader("X-API-Key", "invalid-key");
+
+    when(gatewayService.executeRouting(eq("invalid-key"), eq(null)))
+        .thenThrow(new RuntimeException("401_UNAUTHORIZED: API Key không hợp lệ"));
+
+    ResponseEntity<String> response = controller.handleRedirect("invalid-key", request);
+
+    assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+    assertEquals("401_UNAUTHORIZED: API Key không hợp lệ", response.getBody());
+  }
+
+  @Test
+  void shouldReturn402WhenInsufficientBalance() {
+    GatewayService gatewayService = Mockito.mock(GatewayService.class);
+    GatewayController controller = new GatewayController(gatewayService);
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/v1/gateway/service/mock-merchant/weather");
+    request.addHeader("X-API-Key", "test-key");
+
+    when(gatewayService.executeRouting(eq("test-key"), eq(null)))
+        .thenThrow(new RuntimeException("402_PAYMENT_REQUIRED: Số dư tài khoản không đủ"));
+
+    ResponseEntity<String> response = controller.handleRedirect("test-key", request);
+
+    assertEquals(HttpStatus.PAYMENT_REQUIRED, response.getStatusCode());
   }
 }

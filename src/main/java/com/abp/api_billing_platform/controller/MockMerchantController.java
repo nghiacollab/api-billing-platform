@@ -1,5 +1,6 @@
 package com.abp.api_billing_platform.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
@@ -25,4 +26,17 @@ public class MockMerchantController {
     return ResponseEntity.ok(Map.of(
         country, 15000000));
   }
+
+  @GetMapping("/subjects")
+  public ResponseEntity<Map<String, List<String>>> getSubjects() {
+    return ResponseEntity.ok(Map.of(
+        "subjects", List.of("Math", "English", "Science")));
+  }
+
+  @GetMapping("/students")
+  public ResponseEntity<Map<String, List<String>>> getStudents() {
+    return ResponseEntity.ok(Map.of(
+        "students", List.of("Mary", "John", "Michael")));
+  }
+
 }

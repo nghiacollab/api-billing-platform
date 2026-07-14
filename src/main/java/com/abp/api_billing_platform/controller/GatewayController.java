@@ -3,7 +3,7 @@ package com.abp.api_billing_platform.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -12,7 +12,7 @@ import com.abp.api_billing_platform.service.GatewayService;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/gateway")
+@RequestMapping("/v1/gateway")
 public class GatewayController {
   private final GatewayService gatewayService;
 
@@ -20,8 +20,8 @@ public class GatewayController {
     this.gatewayService = gatewayService;
   }
 
-  @GetMapping("/{apiKey}/**")
-  public ResponseEntity<String> handleRedirect(@PathVariable String apiKey, HttpServletRequest request) {
+  @GetMapping("/service/**")
+  public ResponseEntity<String> handleRedirect(@RequestHeader("X-API-Key") String apiKey, HttpServletRequest request) {
     String queryString = request.getQueryString();
     try {
       String responseBody = this.gatewayService.executeRouting(apiKey, queryString);
