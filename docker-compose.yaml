@@ -1,4 +1,42 @@
 services:
+  # Kafka Service
+  kafka:
+    image: apache/kafka:latest
+    container_name: local-kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@localhost:29093'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,INNER:PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093,INNER://0.0.0.0:29092'
+      # We use 'local-kafka' to match the container_name exactly
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://localhost:9092,INNER://local-kafka:29092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'INNER'
+      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+    # Add this health check so Docker knows when Kafka is fully booted
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Kafdrop Service
+  kafdrop:
+    image: obsidiandynamics/kafdrop:latest
+    container_name: kafdrop
+    ports:
+      - "9000:9000"
+    environment:
+      # Connect to 'local-kafka' on the INNER port
+      KAFKA_BROKERCONNECT: "local-kafka:29092"
+    depends_on:
+      kafka:
+        condition: service_healthy # This forces Kafdrop to wait until Kafka's health check passes
   postgres-db:
     image: 'postgres:16-alpine'
     environment:
