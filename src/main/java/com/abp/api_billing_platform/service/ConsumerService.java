@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.abp.api_billing_platform.dto.ApiKeyInfoDto;
 import com.abp.api_billing_platform.entity.Consumer;
 import com.abp.api_billing_platform.entity.ConsumerSubscription;
 import com.abp.api_billing_platform.entity.MerchantApi;
@@ -20,12 +21,14 @@ public class ConsumerService {
   private final ConsumerRepository consumerRepository;
   private final MerchantApiRepository merchantApiRepository;
   private final ConsumerSubscriptionRepository consumerSubscriptionRepository;
+  private final RedisService redisService;
 
   public ConsumerService(ConsumerRepository consumerRepository, MerchantApiRepository merchantApiRepository,
-      ConsumerSubscriptionRepository consumerSubscriptionRepository) {
+      ConsumerSubscriptionRepository consumerSubscriptionRepository, RedisService redisService) {
     this.consumerRepository = consumerRepository;
     this.merchantApiRepository = merchantApiRepository;
     this.consumerSubscriptionRepository = consumerSubscriptionRepository;
+    this.redisService = redisService;
   }
 
   public Consumer createConsumer(Consumer consumer) {
@@ -70,7 +73,24 @@ public class ConsumerService {
 
     String generatedKey = UUID.randomUUID().toString().replace("-", "");
     sub.setApiKey(generatedKey);
-    return this.consumerSubscriptionRepository.save(sub);
+
+    ConsumerSubscription savedSub = this.consumerSubscriptionRepository.save(sub);
+
+    ApiKeyInfoDto infoToCache = new ApiKeyInfoDto(
+        savedSub.getId(),
+        consumer.getId(),
+        merchantApi.getTargetEndpoint(),
+        savedSub.getStatus(),
+        consumer.getBillingType(),
+        merchantApi.getUnitPrice());
+
+    try {
+      this.redisService.saveApiKey(generatedKey, infoToCache, 60);
+    } catch (Exception e) {
+      System.err.println("Ghi đệm Redis thất bại sau khi subscribe: " + e.getMessage());
+    }
+
+    return savedSub;
   }
 
   private void validateConsumer(Consumer consumer) {
