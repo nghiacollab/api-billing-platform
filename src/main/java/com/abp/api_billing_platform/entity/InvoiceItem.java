@@ -3,6 +3,8 @@ package com.abp.api_billing_platform.entity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import org.springframework.data.annotation.CreatedDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -33,7 +35,8 @@ public class InvoiceItem {
   @Column(name = "total_amount", precision = 15, scale = 4)
   private BigDecimal totalAmount;
 
-  @Column(name = "created_at")
+  @CreatedDate
+  @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt = LocalDateTime.now();
 
   public Long getId() {
@@ -48,11 +51,11 @@ public class InvoiceItem {
     this.invoice = invoice;
   }
 
-  public MerchantApi getMerchantApiId() {
+  public MerchantApi getMerchantApi() {
     return merchantApi;
   }
 
-  public void setMerchantApiId(MerchantApi merchantApi) {
+  public void setMerchantApi(MerchantApi merchantApi) {
     this.merchantApi = merchantApi;
   }
 

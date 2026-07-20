@@ -3,6 +3,9 @@ package com.abp.api_billing_platform.entity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -31,10 +34,12 @@ public class Invoice {
 
   private String status = "UNPAID";
 
-  @Column(name = "created_at")
+  @CreatedDate
+  @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt = LocalDateTime.now();
 
-  @Column(name = "updated_at")
+  @LastModifiedDate
+  @Column(name = "updated_at", nullable = false)
   private LocalDateTime updatedAt = LocalDateTime.now();
 
   public Long getId() {
